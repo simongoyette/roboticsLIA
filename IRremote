@@ -1,0 +1,141 @@
+#include <IRremote.hpp>
+
+/*
+ This program is to control the elegoo robot car using an infrared remote control
+*/
+
+#define PWMA 5   //Configures the left wheel speed as pin 5
+#define AIN1 8   //Configures the left wheel forward as pin 8
+#define PWMB 6   //Configures the right wheel speed as pin 6
+#define BIN1 7   //Configures the right wheel forward as pin 7
+#define STBY 3    //Configures the STBY as pin 3
+int OFF = 0;    //The speed of the car is 0
+int ON = 150;   //The speed of the car is 150
+
+int irPin = 9;    //The infrared sensor is connected to pin 2
+#define forward 0xB946FF00    //The code for forwards
+#define backward 0xEA15FF00   //The code for backwards
+#define left 0xBB44FF00   //The code for left
+#define right 0xBC43FF00    //The code for right
+#define stop 0xBF40FF00   //The code for stop
+#define leftforward 0xE916FF00    //The code for left forward
+#define rightforward 0xF20DFF00        //The code for right forward
+
+unsigned long val;    //Unsigned long variable called val
+unsigned long previousMillis;    //Unsigned long variable called previousMillis
+
+void setup()
+{
+Serial.begin(9600);
+pinMode(PWMA, OUTPUT);    //Sets the left wheel speed pin as an OUTPUT
+pinMode(AIN1, OUTPUT);    //Sets the left wheel forward pin as an OUTPUT
+pinMode(PWMB, OUTPUT);    //Sets the right wheel speed pin as an OUTPUT
+pinMode(BIN1, OUTPUT);    //Sets the right wheel forward pin as an OUTPUT
+pinMode(STBY,OUTPUT);   //Sets the STBY as an OUTPUT
+IrReceiver.begin(irPin,ENABLE_LED_FEEDBACK);    //Enables the infrared receiver
+}
+
+void loop(){
+if (IrReceiver.decode()){   //If the IR received decodes results...
+  previousMillis = millis();    //Updates the previousMillis to millis()
+  val = IrReceiver.decodedIRData.decodedRawData;    //Defines the value as what the IR receiver decoded
+  Serial.println(val, HEX);   //Prints it out as an Hexadecimal
+  IrReceiver.resume();    //Resumes the reception of IR signals
+  switch(val) {   //Evaluates the value received
+    case forward:   //If it receives the forward code...
+    Forward();    //Enables the forward function
+    break;    //Exit the switch block
+    case backward:    //If it received the backwards code...
+    Backward();   //Enables the backwards function
+    break;    //Exit the switch block
+    case left:    //If it received the left code...
+    Left();   //Enables the left function
+    break;    //Exit the switch block
+    case right:   //If it received the right code...
+    Right();    //Enables the right function
+    break;    //Exit the switch block
+    case stop:    //If it received the stop code...
+    Stop();   //Enables the stop function
+    break;    //Exit the switch block
+    case leftforward:   //If it receiver the leftForward code...
+    leftForward();    //Enables the left forward function
+    break;    //Exit the switch block
+    case rightforward:    //If it received the rightForward code...
+    rightForward();   //Enables the right forward function
+    break;    //Exit from the switch block
+  }
+}
+else
+ {
+  if(millis() - previousMillis > 200){    //If millis() - previousMillis is larger than 200...
+    Stop();   //Enables the stop function
+    previousMillis = millis();    //Updates previousMillis to millis()
+  }
+ }
+}
+
+void Forward()    //Function to make robot car move forwards
+ {
+  digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+  analogWrite(PWMA,ON);   //Sets the left wheel speed as 150
+  digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+  analogWrite(PWMB,ON);   //Sets the right wheel speed as 150
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+} 
+
+void Stop()   //Function to make robot car stop
+{ 
+  digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+  analogWrite(PWMA,OFF);    //Sets the left wheel speed as 0
+  digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+  analogWrite(PWMB,OFF);    //Sets the right wheel speed as 0
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+}
+
+  void Backward()   //Function to make robot go backwards
+  {
+  digitalWrite(AIN1,0);   //Sets the left wheel forward as LOW
+  analogWrite(PWMA,ON);   //Sets the left wheel speed at 150
+  digitalWrite(BIN1,0);   //Sets the right wheel forward as LOW
+  analogWrite(PWMB,ON);   //Sets the right wheel speed as 150
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+  }
+
+  void Left()   //Function to make robot go left
+  {
+    digitalWrite(AIN1,0);   //Sets the left wheel forward as LOW
+    analogWrite(PWMA,ON);   //Sets the left wheel speed as 150
+    digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+    analogWrite(PWMB,ON);   //Sets the right wheel speed as 150
+    digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+  }
+
+  void Right()    //Function to make robot go right
+  {
+    digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+    analogWrite(PWMA,ON);   //Sets the left wheel speed as 150
+    digitalWrite(BIN1,0);   //Sets the right wheel forward as LOW
+    analogWrite(PWMB,ON);   //Sets the right wheel speed as 150
+    digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+  }
+
+    void leftForward()
+  {
+    digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+    analogWrite(PWMA,ON);   //Sets the left wheel speed as 150
+    digitalWrite(STBY,HIGH);   //Sets the STBY as HIGH
+    digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+    analogWrite(PWMB,ON / 2);   //Sets the right wheel speed as 150/2
+    digitalWrite(STBY,HIGH);   //Sets the STBY as HIGH  
+  }
+
+  void rightForward()
+  {
+    digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+    analogWrite(PWMA,ON / 2);   //Sets the left wheel speed as 150/2
+    digitalWrite(STBY,1);   //Sets the STBY as HIGH
+    digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+    analogWrite(PWMB,ON);   //Sets the right wheel speed as 150
+    digitalWrite(STBY,1);   //Sets the STBY as HIGH    
+  }
+
