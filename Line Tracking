@@ -1,0 +1,97 @@
+/*
+The goal of this program is to have the robot follow a line of tape that is placed on the floor
+*/
+
+#define PWMA 5   //Configures the left wheel speed as pin 5
+#define AIN1 8   //Configures the left wheel forward as pin 8
+#define PWMB 6   //Configures the right wheel speed as pin 6
+#define BIN1 7   //Configures the right wheel forward as pin 7
+#define STBY 3    //Configures the STBY as pin 3
+
+#define leftSensor A2   //Configures the left sensor as pin A2
+#define rightSensor A0    //Configures the right sensor as pin A0
+#define middleSensor A1   //Configures the middle sensor as pin A1
+
+#define threshold 500   //Configures the threshold as 500
+
+void setup() {
+pinMode(PWMA, OUTPUT);    //Sets the left wheel speed as an output
+pinMode(AIN1, OUTPUT);    //Sets the left wheel forward as an output
+pinMode(PWMB, OUTPUT);    //Sets the right wheel speed as an output
+pinMode(BIN1, OUTPUT);    //Sets the right wheel forward as an output
+pinMode(STBY, OUTPUT);    //Sets the STBY as an output
+
+  pinMode(leftSensor, INPUT);   //Sets the left sensor as an input
+  pinMode(rightSensor, INPUT);    //Sets the right sensor as an input
+  pinMode(middleSensor, INPUT);   //Sets the middle sensor as an input
+
+  digitalWrite(STBY, HIGH);   //Sets the STBY as HIGH
+}
+
+void loop() {
+  int Lval = analogRead(leftSensor);    //Reads the analog value of the left sensor and converts it into a digital value
+  int midVal = analogRead(middleSensor);    //Reads the analog value of the middle sensor and converts it into a digital value
+  int Rval = analogRead(rightSensor);   //Reads the analog value of the right sensor and converts it into a digital value
+
+  if (midVal >= threshold && Rval >= threshold && Lval >= threshold) {    //If all 3 sensors detect a threshold of 500 or more...
+    while (midVal >= threshold && Rval >= threshold && Lval >= threshold) {   //While all 3 sensors detect a threshold of 500 or more...
+      stop();   //Enables the stop() function
+      break;    //Exit the block
+    }
+  } else if (midVal >= threshold) {   //If the middle sensor detects a value that is 500 or more...
+    forward(100);   //Enables the forward() function
+  } else if (Rval >= threshold && Lval >= threshold) {    //If the right and left sensors detect a threshold of 500 or more...
+    stop();   //Enables the stop() function
+  
+  } else if (Rval >= threshold) {   //If the right sensor detects a threshold of 500 or more...
+    right(100);   //Enables the right() function
+  } else if (Lval >= threshold) {   //If the left sensor detects a threshold of 500 or more...
+    left(100);    //Enables the left() function
+  } else {
+      //If none of the conditions above are true...
+      stop();
+      spin(150);
+  }
+}
+
+void forward(int speed) {
+  digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+  analogWrite(PWMA,speed);   //Sets the left wheel speed at speed
+  digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+  analogWrite(PWMB,speed);   //Sets the right wheel speed at speed
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+}
+
+void left(int speed) {
+  digitalWrite(AIN1,0);   //Sets the left wheel forward as LOW
+  analogWrite(PWMA,speed);   //Sets the left wheel speed at speed
+  digitalWrite(BIN1,1);   //Sets the right wheel forward as HIGH
+  analogWrite(PWMB,speed);   //Sets the right wheel speed at speed
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+}
+
+void right(int speed) {
+  digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+  analogWrite(PWMA,speed);   //Sets the left wheel speed at speed
+  digitalWrite(BIN1,0);   //Sets the right wheel forward as LOW
+  analogWrite(PWMB,speed);   //Sets the right wheel speed at speed
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+}
+
+void stop() {
+  digitalWrite(AIN1, LOW);    //Sets the left wheel forward as LOW
+  analogWrite(PWMA, 0);   //Sets the left wheel speed at speed
+  digitalWrite(BIN1, LOW);    //Sets the right wheel forward as LOW
+  analogWrite(PWMB, 0);   //Sets the right wheel speed at speed
+  digitalWrite(STBY, LOW);    //Sets the STBY as LOW
+}
+
+void spin(int speed) {
+  digitalWrite(AIN1,1);   //Sets the left wheel forward as HIGH
+  analogWrite(PWMA,speed);   //Sets the left wheel speed at speed
+  digitalWrite(BIN1,0);   //Sets the right wheel forward as LOW
+  analogWrite(PWMB,speed);   //Sets the right wheel speed at speed
+  digitalWrite(STBY,HIGH);    //Sets the STBY as HIGH
+}
+
+
